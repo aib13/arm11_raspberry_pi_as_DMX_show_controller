@@ -1,0 +1,80 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{fullpage}
+\usepackage{hyperref}
+\usepackage{tabulary}
+\usepackage{amsthm}
+\usepackage{syntax}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{lipsum}
+\usepackage{verbatim}
+\usepackage{color}
+\usepackage{mathtools}
+\usepackage[left=2.5cm,right=2.5cm, top=2.2cm]{geometry}
+
+\title{ARM Checkpoint Report}
+
+\author{Group 33\\Adela Baciu, Radu Gheorman\\ Nuri Cingillioglu, Kaiwen Song}
+
+\begin{document}
+
+\maketitle 
+\vspace{10mm}
+\section{Group work}
+
+Following our initial meeting, we decided to distribute tasks based on our previous experience with C. We allocated the more experienced programmers to work on the core structure of the emulator, while our less experienced programmer is allocated to work on the bitwise utility library, in order to enhance his familiarity with the language. The task is broken down as follows:
+
+\begin{itemize}
+
+\item Overall Emulator Design                                                  - Nuri
+
+\item The reading of the data                                                    - Adela
+
+\item Data Processing Instructions                                           - Nuri
+
+\item Multiply Instructions                                                         - Radu
+
+\item Branch Instructions                                                          - Adela and Kaiwen
+
+\item Single Data Transfer                                                        - Nuri and Radu
+
+\item Data printing                                                                    - Radu
+
+\item Helper methods and libraries for bits processing            - all of us
+
+\item Report                                                                             - all of us 
+
+\end{itemize}
+
+Throughout the project, we used several means of communication: firstly, and most importantly, face-to-face discussions and coding sessions; secondly, Trello, a web tool that highlighted on going tasks and which members are involved in doing certain tasks. Lastly, Google Hangout for establishing meetings times and tasks.
+
+In addition, GIT has been a vital tool for the entire group, allowing each person to work on different files, and keeping everyone up to date with each other's work. We didn't expand our project into many branches, as we had clear delegation of tasks and that most code was produced in the presence of every member of the group, meant that branching was unnecessary. 
+
+\section{How is the group working}
+
+Group members often joined forces with each other to tackle problems encountered when carrying out individual tasks. Thus, although the assignment of tasks was rigid, the actual implementation was flexible, leading to more elegant solutions to problems.
+
+We have found that coding in close proximity with group members helps to achieve optimal efficiency. Most of the code for the project was produced in such meetings. I believe such meetings raised clarity of communication between the group members, while also helped to maintain concentration and spirit while working. However, there might be occasions that members are not in direct contact with each other, hence a back up channel of communication is required for future tasks.
+
+Of course, the details and the individual work also matter significantly. For this part, each of us has \lit{polished} his/her code alone, adding meaningful comments, spaces, empty lines etc. for others to understand and learn from each piece of code. 
+
+\section{The structure of the emulator}
+
+Firstly, we laid out the memory of the ARM structure, creating two arrays of integers for the memory and the registers for the emulator. The specification stated that the memory is byte-addressable, but all instructions are 32 bits (4 bytes) long and aligned on a 4-byte boundary, thus even though the architecture is byte addressable, we used integers to represent the contents of the memory, giving a memory array of size $2^{14}$. This design also forces the Program Counter to use word addressing mode instead of byte addressing mode. The size of the registers array reflected the actual number of registers in the ARM structure, 17. However, to increase readability, we used macros \lit{pc} and \lit{cpsr} inside \lit{arm.h}, the file which simulates the structure of our ARM processor, to represent \lit{registers[15]} and \lit{registers[16]}, respectively.
+
+We created a single instance of the ARM struct, as a C structure, to capture the state of the ARM. Pointers are passed around to instructions, rather than the entire structure, and instructions update the state of the ARM upon execution. Since the GPIO addresses show up in part 3, the initial design never considered them. To incorporate GPIO into the emulator, the GPIO physical addresses are mapped into the existing memory locations, namely the last 3 positions in the memory. 
+
+The pipeline consists of a fetch to a decode, execute cycle. The emulator executes the instruction immediately after it decodes the instruction. This design had a huge impact on the pipeline as our Program Counter points to the next instruction instead of the second next instruction as stated in the specification. We modified the behaviour of branching instructions to conform to this design explicitly. The ARM structure is first initialized with GPIO taken into account then the binary file is read into the memory starting at position 0. The first instruction is fetched and then the Program Counter is increased after. When decoding, first the condition field is checked, if valid, then the type of the instruction is decoded to one of the four possibilities. Then, the 32-bit instruction and a pointer to the current ARM structure is passed to the respective instruction type decoder and executor which reside in different files. For example, if the instruction is a data processing instruction, it is passed into \lit{dataprocessing.c} file, along with the point to the ARM structure, into an entry point function of the same name. It is decoded further, and executed immediately after updating the state of the ARM. 
+
+\section{Difficult and challenging tasks}
+The first part of the project, the emulator, was challenging from every point of view, because each member had to study their assigned task on their own, which has taught us the importance of collaboration and self-learning. 
+
+There have been occasions when we were tackling tasks where we have found conflicting descriptions of the system structure, specifically with the endianness of the system. This caused great confusion for the group, and we had to consult members of the teaching staff to resolve the problem.
+
+When we are moving onto doing our extension, we will be working without a specification, and we'd have to be able to state what needs to be achieved at each stage ourselves, which could be a challenging thing. We'd also need to be able to convey the our and thinking behind the extension in a formal report, which would be a new learning experience.
+
+\end{document}
